@@ -1,0 +1,17 @@
+[
+    {
+        "title":"monitor",
+        "Price":4000,
+        "id":1
+    },
+    {
+        "title":"teclado",
+        "Price":2000,
+        "id":2
+    },
+    {
+        "title":"parlantes",
+        "Price":900,
+        "id":3
+    }
+]
