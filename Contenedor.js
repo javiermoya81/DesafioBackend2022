@@ -20,6 +20,19 @@ class contenedor{
             listadoProductos.push(producto)
             await fs.promises.writeFile(this.file, JSON.stringify(listadoProductos, null, 2))
             console.log(`Producto id:${producto.id} - Agregado`);
+            return producto.id
+        } 
+        catch (error) {
+            console.error('Se produjo un error:', error)
+        }
+    }
+
+    async saveAll(id, producto){
+        try {
+            const contenidoFileJson = await fs.promises.readFile(this.file, 'utf-8')
+            let listadoProductos = JSON.parse(contenidoFileJson)
+            listadoProductos[id-1] = producto
+            await fs.promises.writeFile(this.file, JSON.stringify(listadoProductos, null, 2))
         } 
         catch (error) {
             console.error('Se produjo un error:', error)
@@ -59,7 +72,7 @@ class contenedor{
             if(indiceProducto===-1) console.log('No existe el producto')
             else {
                 listadoProductos.splice(indiceProducto,1)
-                await fs.promises.writeFile('./productos.txt',JSON.stringify(listadoProductos, null, 2))
+                await fs.promises.writeFile('./productos.json',JSON.stringify(listadoProductos, null, 2))
                 console.log(`Producto id:${id} - eliminado`);
             }
         } 
@@ -70,7 +83,7 @@ class contenedor{
 
     async deleteAll(){ 
         try {
-            await fs.promises.writeFile('./productos.txt','[]')
+            await fs.promises.writeFile('./productos.json','[]')
             console.log('Se eliminaron todos los productos');
             }
         catch (error) {
