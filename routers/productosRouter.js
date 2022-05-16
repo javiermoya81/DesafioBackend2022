@@ -1,31 +1,40 @@
-
-const { json } = require('express')
 const express = require('express')
-const Contenedor = require('../Contenedor')
-
-const productosContenedor = new Contenedor('./productos.json')
 
 const productosRouter = express.Router()
 
+const productos = [];
+
+const findId = (id,resp) =>{
+    const producto = productos.find(element => element.id === id)
+    if (!producto){
+        resp.send({"Error": "Producto no encontrado"})
+        return
+    }
+    return producto}
 
 // ruta que devuelve todos los productos
-productosRouter.get('/',async(req,res)=>{
-    const listaProductos = await productosContenedor.getAll()
-    res.json(listaProductos)
+productosRouter.get('/',(req,res)=>{
+    res.json({productos:productos})
 })
 
 // ruta que devuelve un producto por id
-productosRouter.get('/:id',async(req,res)=>{
+productosRouter.get('/:id',(req,res)=>{
     const idProducto = parseInt(req.params.id)
-    const producto = await productosContenedor.getById(idProducto)
+    const producto = findId(idProducto, res)
     res.json(producto)
 })
 
 //ruta agrega un nuevo producto
-productosRouter.post('/', async(req, res)=>{
+productosRouter.post('/', (req, res)=>{
     const nuevoProducto = req.body
     nuevoProducto.price = parseInt(nuevoProducto.price)
-    await productosContenedor.save(nuevoProducto)
+    if(productos.length === 0) {
+        nuevoProducto.id = productos.length+1
+    }else{
+        const ultimoProducto = productos[productos.length-1]
+        nuevoProducto.id = ultimoProducto.id+1
+    }
+    productos.push(nuevoProducto)
 
     res.send({
         mensaje: ' producto nuevo agregado',
@@ -36,24 +45,24 @@ productosRouter.post('/', async(req, res)=>{
 })
 
 //ruta actualiza un producto por id
-productosRouter.put('/:id',async(req,res)=>{
-
+productosRouter.put('/:id',(req,res)=>{
     const idProducto = parseInt(req.params.id)
-    const producto = await productosContenedor.getById(idProducto)
+    const producto = findId(idProducto, res)
     const productoModificado = req.body
 
     if(producto.title != productoModificado.title) producto.title = productoModificado.title
     if(producto.price != productoModificado.price) producto.price = productoModificado.price
 
-    await productosContenedor.saveAll(idProducto, producto)
-
     res.json(producto)
 })
 
 //ruta elimina un producto por id
-productosRouter.delete('/:id',async(req,res)=>{
-    const idProducto = parseInt(req.params.id) 
-    await productosContenedor.deleteById(idProducto)
+productosRouter.delete('/:id',(req,res)=>{
+    const idProducto = parseInt(req.params.id)
+    const producto = findId(idProducto,res)
+    const indiceProducto = productos.indexOf(producto);
+    productos.splice(indiceProducto,1)
     res.send('Producto eliminado')
+    
 })
 module.exports=productosRouter
