@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<%-include('../partials/head')%>
+    <body>
+        <div class="container-fluid">
+            <div class="row col-12">
+                <h1 class="mt-3 mb-4 text-center">Ingreso de productos</h1>
+            </div>            
+
+            <div class="row col-12 mt-3 justify-content-center">
+                <form action="productos" method="POST" class="border w-75 ms-3 p-3">
+                    <div class='w-75 mx-auto'>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Cargar Producto</label>
+                            <input type="text" placeholder="producto" name="title" class="form-control">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Ingrese precio</label>
+                            <input type="number" placeholder="precio" name="price" class="form-control">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="img" class="form-label">Url de imagen</label>
+                            <input type="url" placeholder="url imagen" name="img" class="form-control">
+                        </div>
+                        
+                        <input type="submit" value="Aceptar">
+                    </div>
+                </form>
+            </div>
+
+            <a href="http://localhost:8080/productos" class="btn btn-success mt-5">Ir a listado de productos</a>
+        </div>        
+    </body>
+</html>
