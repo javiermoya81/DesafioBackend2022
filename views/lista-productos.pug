@@ -1,0 +1,24 @@
+html 
+    include includes/head.pug
+    body
+        div(class="container-fluid")
+            if(listaProductos.length ==0)
+                h2(class="bg-danger w-50 mt-5 p-3 mx-auto text-center")='No se encontraron productos'
+            else
+                h1(class="text-center mt-3 mb-4")='Listado de productos'
+                table(class="table table-success table-striped w-75 table-bordered mt-5 text-center mx-auto")
+                    tr
+                        th='Producto'
+                        th='Precio'
+                        th(class="w-25")='Imagen'
+                        each prod in listaProductos 
+                            tr
+                                td=prod.title
+                                td=prod.price
+                                td
+                                    img(
+                                        src=prod.img
+                                        alt="" 
+                                        class="w-25 h-25"
+                                    )
+            a(href="http://localhost:8080" class="btn btn-success mt-5")='Volver al formulario'

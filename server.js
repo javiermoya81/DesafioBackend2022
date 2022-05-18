@@ -4,14 +4,15 @@ const productosRouter = require('./routers/productosRouter')
 
 const server = express()
 
-server.set('view engine', 'ejs')
+server.set('views', './views')
+server.set('view engine', 'pug')
 
 server.use(express.json())
 server.use(express.urlencoded({extended:true}))
 
 
 server.get('/', (req, res)=>{
-    res.render('pages/form')
+    res.render('index.pug')
 })
 
 server.use('/', productosRouter);

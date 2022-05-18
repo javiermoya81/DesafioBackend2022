@@ -7,7 +7,7 @@ const productos = [];
 // ruta que devuelve todos los productos
 productosRouter.get('/productos',(req,res)=>{
     const tagline = 'Lista de Productos'
-    res.render('pages/lista-productos', {listaProductos: productos, tagline: tagline})
+    res.render('lista-productos.pug', {listaProductos: productos})
 })
 
 //ruta agrega un nuevo producto
