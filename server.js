@@ -19,9 +19,10 @@ server.engine(
     })
 )
 
-server.use(express.static(__dirname + '/public'));
 server.set('view engine', 'hbs')
 server.set('views', "./public/views/")
+
+server.use(express.static(__dirname + '/public'));
 server.use(express.json())
 server.use(express.urlencoded({extended:true}))
 server.use('/', productosRouter);
@@ -32,13 +33,12 @@ const mensajesChats = [];
 io.on('connection',(socket)=>{
     console.log(`Cliente conectado: ${socket.id}`)
     io.sockets.emit('mensajes', mensajesChats);
-    
+
     socket.on('mensajeUsuario',data => {
         mensajesChats.push(data);
         io.sockets.emit('mensajes', mensajesChats);
     })
 })
-
 
 const port = 8080
 httpServer.listen(port, ()=>{
