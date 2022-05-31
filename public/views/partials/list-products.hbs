@@ -1,0 +1,23 @@
+
+<div class="row col-12 justify-content-center">
+    {{#if listaProductos}}
+        <table class="table table-success table-striped w-75 table-bordered mt-1 text-center ms-3">
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th class="w-25">Imagen</th>
+            </tr>
+            {{#each listaProductos}}
+                <tr>
+                    <td>{{this.title}}</td>
+                    <td>{{this.price}}</td>
+                    <td>
+                        <img src="{{this.img}}"class="w-25 h-25">
+                    </td>
+                </tr>
+            {{/each}}    
+        </table>
+        {{else}}
+            <h2 class="bg-danger w-50 mt-2 p-3 mx-auto text-center">No se encontraron productos</h2>
+    {{/if}}
+</div>
