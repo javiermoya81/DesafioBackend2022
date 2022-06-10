@@ -1,25 +1,23 @@
 const express = require('express')
+const Contenedor = require('../contenedor.js')
+const {optionsDB} = require('../optionsDB/configDB.js')
 
 const productosRouter = express.Router()
 
-const productos = [];
+const apiContenedor = new Contenedor(optionsDB.mariaDB,"productos")
 
 // ruta que devuelve todos los productos
-productosRouter.get('/',(req,res)=>{
+productosRouter.get('/', async (req,res)=>{
+    const productos = await apiContenedor.getAll()
     res.render('main', {listaProductos:productos})
 })
 
 //ruta agrega un nuevo producto
-productosRouter.post('/productos', (req, res)=>{
+productosRouter.post('/productos', async (req, res)=>{
     const nuevoProducto = req.body
+    console.log(nuevoProducto);
     nuevoProducto.price = parseInt(nuevoProducto.price)
-    if(productos.length === 0) {
-        nuevoProducto.id = productos.length+1
-    }else{
-        const ultimoProducto = productos[productos.length-1]
-        nuevoProducto.id = ultimoProducto.id+1
-    }
-    productos.push(nuevoProducto)
+    await apiContenedor.save(nuevoProducto)
 
     res.redirect('/')
 })
