@@ -5,25 +5,28 @@ class Contenedor{
     constructor(options, table){
         this.knex = knex(options)
         this.table = table
-        console.log(this.knex);
+
+        
+        console.log(' constructor');
     }
 
     async save(producto){
         try {
+            console.log(this.knex + 'save');
             const exist = await this.knex.schema.hasTable(this.table)
+            console.log(exist);
             if(exist){
                 const nuevoProducto = await this.knex(this.table).insert(producto)
                 return nuevoProducto
             }
             else{
-                await knex.schema.createTable('productos',table=>{
+                await this.knex.schema.createTable('productos',(table)=>{
                     table.increments('id').primary().unique()
                     table.string('title',50).notNullable()
                     table.float('price').notNullable()
-                    table.string('image',200).notNullable()
+                    table.string('image',200)
                 });
-                const nuevoProducto = await this.knex(this.table).insert(producto)
-                return nuevoProducto
+                console.log('tabla creada');
             }
             
         } 
