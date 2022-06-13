@@ -2,12 +2,17 @@
 const express = require('express');
 const {Server: ioServer} = require('socket.io')
 const http = require('http')
-const productosRouter = require('./routers/productosRouter');
 const handlebars = require('express-handlebars');
+const Contenedor = require('./contenedor')
+const {optionsDB} = require('./optionsDB/configDB')
 
 const server = express()
 const httpServer = http.createServer(server)
 const io = new ioServer(httpServer)
+
+const apiContenedorSql = new Contenedor(optionsDB.sqlite,"mensajes")
+const apiContenedorMDB = new Contenedor(optionsDB.mariaDB,"productos")
+
 
 server.engine(
     "hbs",
@@ -25,18 +30,30 @@ server.set('views', "./public/views/")
 server.use(express.static(__dirname + '/public'));
 server.use(express.json())
 server.use(express.urlencoded({extended:true}))
-server.use('/', productosRouter);
+
+server.get('/', async (req,res)=>{
+    const productos = await apiContenedorMDB.getAll()
+    res.render('main', {listaProductos:productos})
+})
 
 
-const mensajesChats = [];
-
-io.on('connection',(socket)=>{
+io.on('connection',async (socket)=>{
+    
     console.log(`Cliente conectado: ${socket.id}`)
+
+    const mensajesChats = await apiContenedorSql.getAll();
     io.sockets.emit('mensajes', mensajesChats);
 
-    socket.on('mensajeUsuario',data => {
-        mensajesChats.push(data);
+    socket.on('mensajeUsuario', async (data) => {
+        await apiContenedorSql.save(data);
+        const mensajesChats = await apiContenedorSql.getAll();
         io.sockets.emit('mensajes', mensajesChats);
+    })
+
+    socket.on('nuevoProducto', async (data) => {
+        await apiContenedorMDB.save(data);
+        const productos = await apiContenedorMDB.getAll();
+        io.sockets.emit('productos', productos);
     })
 })
 

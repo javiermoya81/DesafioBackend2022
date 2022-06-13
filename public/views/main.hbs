@@ -5,21 +5,21 @@
     </div>            
 
     <div class="row col-12 mt-2 justify-content-center">
-        <form action="productos" method="POST" class="border w-75 ms-3 p-3 justify-content-center">
+        <form class="border w-75 ms-3 p-3 justify-content-center" onsubmit="return nuevoProducto(this)">
             <div class='w-75 mx-auto'>
                 <div class="mb-3">
                     <label for="title" class="form-label">Cargar Producto</label>
-                    <input type="text" placeholder="producto" name="title" class="form-control">
+                    <input type="text" id="title-prod" placeholder="producto" name="title" class="form-control">
                 </div>
                 
                 <div class="mb-3">
                     <label for="price" class="form-label">Ingrese precio</label>
-                    <input type="number" placeholder="precio" name="price" class="form-control">
+                    <input type="number" id="price-prod" placeholder="precio" name="price" class="form-control">
                 </div>
                 
                 <div class="mb-3">
                     <label for="image" class="form-label">Url de imagen</label>
-                    <input type="url" placeholder="url imagen" name="image" class="form-control">
+                    <input type="url" id="img-prod" placeholder="url imagen" name="image" class="form-control">
                 </div>
                 
                 <input type="submit" value="Aceptar">
@@ -28,6 +28,9 @@
     </div>
 
     <br>
+    {{#unless listaProductos}}
+        <h2 class="bg-danger w-50 mt-2 p-3 mx-auto text-center" id="noProd">No se encontraron productos</h2>    
+    {{/unless}}
     {{> list-products}}
     <br>
     {{> chats}}

@@ -9,12 +9,12 @@ const optionsDB = {
             database:"ecommerce",
         }
     },
-    /*sqlite:{
+    sqlite:{
         client:"sqlite3",
         connection:{
-            filename:"../DB/ecommerceDB.sqlite"
+            filename:"./DB/ecommerceDB.sqlite"
         },
         useNullAsDefault: true
-    }*/
+    }
 }
 module.exports = {optionsDB}

@@ -5,28 +5,32 @@ class Contenedor{
     constructor(options, table){
         this.knex = knex(options)
         this.table = table
-
-        
-        console.log(' constructor');
     }
 
-    async save(producto){
+    async save(elemento){
         try {
-            console.log(this.knex + 'save');
             const exist = await this.knex.schema.hasTable(this.table)
-            console.log(exist);
             if(exist){
-                const nuevoProducto = await this.knex(this.table).insert(producto)
-                return nuevoProducto
+                const nuevoElemento = await this.knex(this.table).insert(elemento)
+                return nuevoElemento
             }
-            else{
+            else if(this.table == 'productos'){
                 await this.knex.schema.createTable('productos',(table)=>{
                     table.increments('id').primary().unique()
                     table.string('title',50).notNullable()
                     table.float('price').notNullable()
                     table.string('image',200)
                 });
-                console.log('tabla creada');
+                const nuevoElemento = await this.knex(this.table).insert(elemento)
+                return nuevoElemento
+            } else{
+                await this.knex.schema.createTable('mensajes',(table)=>{
+                    table.increments('id').primary().unique()
+                    table.string('email',30).notNullable()
+                    table.string('mensaje',400).notNullable()
+                });
+                const nuevoElemento = await this.knex(this.table).insert(elemento)
+                return nuevoElemento
             }
             
         } 
@@ -39,11 +43,11 @@ class Contenedor{
         try {
             const exist = await this.knex.schema.hasTable(this.table)
             if(exist){
-            const producto = await this.knex.from(this.table).select("*").where("id",id)
-            return producto
+            const elemento = await this.knex.from(this.table).select("*").where("id",id)
+            return elemento
             }
             else{
-                return ({mensaje:"No exiten productos cargados"})
+                return ({"mensaje":"Id no encontrado"})
             }
         } 
         catch (error) {
@@ -55,11 +59,8 @@ class Contenedor{
         try {
             const exist = await this.knex.schema.hasTable(this.table)
             if(exist){
-            const listadoProductos = await this.knex.from(this.table).select("*")
-            return listadoProductos
-            }
-            else{
-                return ({mensaje:"No exiten productos cargados"})
+            const elemento = await this.knex.from(this.table).select("*")
+            return elemento
             }
         } 
         catch (error) {
