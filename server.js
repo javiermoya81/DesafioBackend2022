@@ -2,12 +2,14 @@
 const express = require('express');
 const {Server: ioServer} = require('socket.io')
 const http = require('http')
-const productosRouter = require('./routers/productosRouter');
 const handlebars = require('express-handlebars');
+const Contenedor = require('./contenedor')
 
 const server = express()
 const httpServer = http.createServer(server)
 const io = new ioServer(httpServer)
+
+const apiContenedor = new Contenedor('./productos.json')
 
 server.engine(
     "hbs",
@@ -25,7 +27,11 @@ server.set('views', "./public/views/")
 server.use(express.static(__dirname + '/public'));
 server.use(express.json())
 server.use(express.urlencoded({extended:true}))
-server.use('/', productosRouter);
+
+server.get('/', async (req,res)=>{
+    const productos = await apiContenedor.getAll()
+    res.render('main', {listaProductos:productos})
+})
 
 
 const mensajesChats = [];
@@ -37,6 +43,12 @@ io.on('connection',(socket)=>{
     socket.on('mensajeUsuario',data => {
         mensajesChats.push(data);
         io.sockets.emit('mensajes', mensajesChats);
+    })
+
+    socket.on('nuevoProducto', async (data) => {
+        await apiContenedor.save(data);
+        const productos = await apiContenedor.getAll();
+        io.sockets.emit('productos', productos);
     })
 })
 
