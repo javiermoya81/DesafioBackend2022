@@ -1,38 +1,38 @@
 
-const { Console } = require('console');
-const fs = require('fs')
+const knex = require('knex')
 
-class contenedor{
-    constructor(file){
-        this.file = file
+class Contenedor{
+    constructor(options, table){
+        this.knex = knex(options)
+        this.table = table
     }
 
-    async save(producto){
+    async save(elemento){
         try {
-            const contenidoFileJson = await fs.promises.readFile(this.file, 'utf-8')
-            let listadoProductos = JSON.parse(contenidoFileJson)
-            if(listadoProductos.length === 0) {
-                producto.id = listadoProductos.length+1
-            }else{
-                const ultimoProducto = listadoProductos[listadoProductos.length-1]
-                producto.id = ultimoProducto.id+1
+            const exist = await this.knex.schema.hasTable(this.table)
+            if(exist){
+                const nuevoElemento = await this.knex(this.table).insert(elemento)
+                return nuevoElemento
             }
-            listadoProductos.push(producto)
-            await fs.promises.writeFile(this.file, JSON.stringify(listadoProductos, null, 2))
-            console.log(`Producto id:${producto.id} - Agregado`);
-            return producto.id
-        } 
-        catch (error) {
-            console.error('Se produjo un error:', error)
-        }
-    }
-
-    async saveAll(id, producto){
-        try {
-            const contenidoFileJson = await fs.promises.readFile(this.file, 'utf-8')
-            let listadoProductos = JSON.parse(contenidoFileJson)
-            listadoProductos[id-1] = producto
-            await fs.promises.writeFile(this.file, JSON.stringify(listadoProductos, null, 2))
+            else if(this.table == 'productos'){
+                await this.knex.schema.createTable('productos',(table)=>{
+                    table.increments('id').primary().unique()
+                    table.string('title',50).notNullable()
+                    table.float('price').notNullable()
+                    table.string('image',200)
+                });
+                const nuevoElemento = await this.knex(this.table).insert(elemento)
+                return nuevoElemento
+            } else{
+                await this.knex.schema.createTable('mensajes',(table)=>{
+                    table.increments('id').primary().unique()
+                    table.string('email',30).notNullable()
+                    table.string('mensaje',400).notNullable()
+                });
+                const nuevoElemento = await this.knex(this.table).insert(elemento)
+                return nuevoElemento
+            }
+            
         } 
         catch (error) {
             console.error('Se produjo un error:', error)
@@ -41,11 +41,14 @@ class contenedor{
 
     async getById(id){   
         try {
-            const contenidoFileJson = await fs.promises.readFile(this.file, 'utf-8')
-            let listadoProductos = JSON.parse(contenidoFileJson)
-            let producto = listadoProductos.find(element => element.id === id);
-            if(!producto) producto=null
-            return producto
+            const exist = await this.knex.schema.hasTable(this.table)
+            if(exist){
+            const elemento = await this.knex.from(this.table).select("*").where("id",id)
+            return elemento
+            }
+            else{
+                return ({"mensaje":"Id no encontrado"})
+            }
         } 
         catch (error) {
             console.error('Se produjo un error:', error)
@@ -54,42 +57,16 @@ class contenedor{
 
     async getAll(){  
         try {
-            const contenidoFileJson = await fs.promises.readFile(this.file, 'utf-8')
-            let listadoProductos = JSON.parse(contenidoFileJson)
-            return listadoProductos
-        } 
-        catch (error) {
-            console.error('Se produjo un error:', error)
-        }
-    }
-
-    async deleteById(id){   
-        try {
-            const contenidoFileJson = await fs.promises.readFile(this.file, 'utf-8')
-            let listadoProductos = JSON.parse(contenidoFileJson)
-            let producto = listadoProductos.find(element => element.id === id);
-            let indiceProducto = listadoProductos.indexOf(producto);
-            if(indiceProducto===-1) console.log('No existe el producto')
-            else {
-                listadoProductos.splice(indiceProducto,1)
-                await fs.promises.writeFile('./productos.json',JSON.stringify(listadoProductos, null, 2))
-                console.log(`Producto id:${id} - eliminado`);
+            const exist = await this.knex.schema.hasTable(this.table)
+            if(exist){
+            const elemento = await this.knex.from(this.table).select("*")
+            return elemento
             }
         } 
         catch (error) {
             console.error('Se produjo un error:', error)
         }
-    }
-
-    async deleteAll(){ 
-        try {
-            await fs.promises.writeFile('./productos.json','[]')
-            console.log('Se eliminaron todos los productos');
-            }
-        catch (error) {
-            console.error('Se produjo un error:', error)
-        }   
     }
 }
 
-module.exports = contenedor
+module.exports = Contenedor

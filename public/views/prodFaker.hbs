@@ -1,0 +1,9 @@
+
+<div class="container-fluid">
+    <br>
+    {{#unless listaProductos}}
+        <h2 class="bg-danger w-50 mt-2 p-3 mx-auto text-center" id="noProd">No se encontraron productos</h2>    
+    {{/unless}}
+    {{> list-products}}
+    <br>
+</div>        
