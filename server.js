@@ -6,6 +6,8 @@ const handlebars = require('express-handlebars');
 const Contenedor = require('./contenedor')
 const {optionsDB} = require('./optionsDB/configDB')
 const {faker} = require('@faker-js/faker')
+const session = require('express-session');
+const { log } = require('console');
 
 const server = express()
 const httpServer = http.createServer(server)
@@ -31,10 +33,30 @@ server.set('views', "./public/views/")
 server.use(express.static(__dirname + '/public'));
 server.use(express.json())
 server.use(express.urlencoded({extended:true}))
+server.use(session({
+    secret: 'coder',
+    resave: true,
+    saveUninitialized: true
+}))
 
 server.get('/', async (req,res)=>{
     const productos = await apiContenedorMDB.getAll()
     res.render('main', {listaProductos:productos})
+})
+
+server.get('/login',(req, res)=>{
+    res.render('login')
+})
+
+server.post('/session',(req, res)=>{
+    const key = Object.keys(req.body)[0]
+    const name = req.body[key]
+    req.session[name]
+    console.log(name)
+    //const key = 
+    
+    //req.session[key] = req.body[key]
+    res.send(req.body)
 })
 
 server.get('/api/productos-test',(req,res)=>{
