@@ -39,25 +39,31 @@ server.use(session({
     saveUninitialized: true
 }))
 
-server.get('/', async (req,res)=>{
-    const productos = await apiContenedorMDB.getAll()
-    res.render('main', {listaProductos:productos})
-})
 
-server.get('/login',(req, res)=>{
+server.get('/',(req, res)=>{
     res.render('login')
 })
 
 server.post('/session',(req, res)=>{
     const key = Object.keys(req.body)[0]
     const name = req.body[key]
-    req.session[name]
-    console.log(name)
-    //const key = 
-    
-    //req.session[key] = req.body[key]
-    res.send(req.body)
+    req.session[key] = name
+    res.redirect('/index')
 })
+
+server.get('/index', async (req,res)=>{
+    const productos = await apiContenedorMDB.getAll()
+    const userName = req.session.name
+    res.render('main', {listaProductos:productos, name:userName})
+})
+
+server.get('/logout', (req,res,next)=>{
+    req.session.destroy(err =>{
+        if(!err) res.redirect('/')
+        else res.send('Error al desloguearse')
+    })
+})
+
 
 server.get('/api/productos-test',(req,res)=>{
     const arrayFaker = []
@@ -71,8 +77,6 @@ server.get('/api/productos-test',(req,res)=>{
     }
     res.render('prodFaker',{listaProductos:arrayFaker})
 })
-
-
 
 
 io.on('connection',async (socket)=>{
