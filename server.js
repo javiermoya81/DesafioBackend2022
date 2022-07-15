@@ -16,6 +16,7 @@ const io = new ioServer(httpServer)
 const apiContenedorSql = new Contenedor(optionsDB.sqlite,"mensajes")
 const apiContenedorMDB = new Contenedor(optionsDB.mariaDB,"productos")
 
+const usuarios = [] //solo se utiliza como prueba hasta conectar db
 
 server.engine(
     "hbs",
@@ -39,16 +40,39 @@ server.use(session({
     saveUninitialized: true
 }))
 
-
 server.get('/',(req, res)=>{
     res.render('login')
 })
 
-server.post('/session',(req, res)=>{
-    const key = Object.keys(req.body)[0]
-    const name = req.body[key]
-    req.session[key] = name
-    res.redirect('/index')
+server.get('/register',(req, res)=>{
+    res.render('register')
+})
+
+server.post('/register',(req, res)=>{
+   if (usuarios.some(user => user.name == req.body.name)){
+        return res.render('errorRegister')
+   }
+   usuarios.push(req.body)
+   res.render('login')
+})
+
+server.post('/login',(req, res)=>{
+
+    // const key = Object.keys(req.body)[0]
+    // const name = req.body[key]
+    // req.session[key] = name
+    // res.redirect('/index')
+
+    const user = usuarios.find(user => user.name == req.body.name) //
+    if(user){
+        const key = Object.keys(req.body)[0]
+        const name = req.body[key]
+        req.session[key] = name
+        res.redirect('/index')
+    }
+    else{
+        return res.render('errorLogin')
+    }
 })
 
 server.get('/index', async (req,res)=>{
