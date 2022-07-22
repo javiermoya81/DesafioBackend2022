@@ -1,4 +1,3 @@
-
 const express = require('express');
 const {Server: ioServer} = require('socket.io')
 const http = require('http')
@@ -8,6 +7,11 @@ const {optionsDB} = require('./optionsDB/configDB')
 const {faker} = require('@faker-js/faker')
 const session = require('express-session');
 const { log } = require('console');
+const MongoStore = require('connect-mongo')
+const dbMongoAtlas = require('./DB/dbMongoAtlas')
+const passportLocal = require('./passport/local.js')
+const passport = require('passport')
+
 
 const server = express()
 const httpServer = http.createServer(server)
@@ -15,8 +19,6 @@ const io = new ioServer(httpServer)
 
 const apiContenedorSql = new Contenedor(optionsDB.sqlite,"mensajes")
 const apiContenedorMDB = new Contenedor(optionsDB.mariaDB,"productos")
-
-const usuarios = [] //solo se utiliza como prueba hasta conectar db
 
 server.engine(
     "hbs",
@@ -34,11 +36,24 @@ server.set('views', "./public/views/")
 server.use(express.static(__dirname + '/public'));
 server.use(express.json())
 server.use(express.urlencoded({extended:true}))
+//Desafio Inicio sesion
 server.use(session({
     secret: 'coder',
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({mongoUrl:'mongodb+srv://javiercoder:javieradmin@cluster0.waohv.mongodb.net/sessionMongoAtlas?retryWrites=true&w=majority'})
 }))
+server.use(passport.initialize())
+server.use(passport.session())
+
+function isAuth(res, req, next){
+    if(res.isAuthenticated()){
+        next()
+    }else{
+        res.render('/login')
+    }
+}
+
 
 server.get('/',(req, res)=>{
     res.render('login')
@@ -48,37 +63,25 @@ server.get('/register',(req, res)=>{
     res.render('register')
 })
 
-server.post('/register',(req, res)=>{
-   if (usuarios.some(user => user.name == req.body.name)){
-        return res.render('errorRegister')
-   }
-   usuarios.push(req.body)
-   res.render('login')
+server.post('/register',passport.authenticate('registro',{
+    failureRedirect:'/errorRegister',
+    successRedirect: '/'
+}))
+server.get('/errorRegister',(req,res)=>{
+    res.render('errorRegister')
 })
 
-server.post('/login',(req, res)=>{
-
-    // const key = Object.keys(req.body)[0]
-    // const name = req.body[key]
-    // req.session[key] = name
-    // res.redirect('/index')
-
-    const user = usuarios.find(user => user.name == req.body.name) //
-    if(user){
-        const key = Object.keys(req.body)[0]
-        const name = req.body[key]
-        req.session[key] = name
-        res.redirect('/index')
-    }
-    else{
-        return res.render('errorLogin')
-    }
+server.post('/login',passport.authenticate('login',{
+    failureRedirect:'/errorLogin',
+    successRedirect: '/index'
+}))
+server.get('/errorLogin',(req,res)=>{
+    res.render('errorLogin')
 })
 
-server.get('/index', async (req,res)=>{
-    const productos = await apiContenedorMDB.getAll()
-    const userName = req.session.name
-    res.render('main', {listaProductos:productos, name:userName})
+server.get('/index',isAuth, (req,res)=>{
+    console.log(`getIndex ${req.user.nombre}`);
+    res.render('main', { name:req.user.nombre})
 })
 
 server.get('/logout', (req,res,next)=>{
