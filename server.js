@@ -11,6 +11,8 @@ const MongoStore = require('connect-mongo')
 const dbMongoAtlas = require('./DB/dbMongoAtlas')
 const passportLocal = require('./passport/local.js')
 const passport = require('passport')
+const config = require('./config')
+const processObject = require('./proccesObject') 
 
 
 const server = express()
@@ -54,6 +56,7 @@ function isAuth(res, req, next){
     }
 }
 
+/***********Rutas***********/
 
 server.get('/',(req, res)=>{
     res.render('login')
@@ -105,7 +108,11 @@ server.get('/api/productos-test',(req,res)=>{
     res.render('prodFaker',{listaProductos:arrayFaker})
 })
 
+server.get('/info',(req,res)=>{
 
+})
+
+/*************Socket****************/
 io.on('connection',async (socket)=>{
     
     console.log(`Cliente conectado: ${socket.id}`)
@@ -126,9 +133,8 @@ io.on('connection',async (socket)=>{
     })
 })
 
-const port = 8080
-httpServer.listen(port, ()=>{
-    console.log(`Servidor conectado al puerto ${port}`)
+httpServer.listen(config.PORT, ()=>{
+    console.log(`Servidor conectado al puerto ${config.PORT}`)
 })
 httpServer.on("error",error=>console.log(`Se produjo error de servidor ${error}`))
 
