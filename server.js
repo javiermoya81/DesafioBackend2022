@@ -11,8 +11,10 @@ const MongoStore = require('connect-mongo')
 const dbMongoAtlas = require('./DB/dbMongoAtlas')
 const passportLocal = require('./passport/local.js')
 const passport = require('passport')
-const config = require('./config')
 const processObject = require('./proccesObject') 
+const yargs = require('yargs')
+
+
 
 
 const server = express()
@@ -133,8 +135,11 @@ io.on('connection',async (socket)=>{
     })
 })
 
-httpServer.listen(config.PORT, ()=>{
-    console.log(`Servidor conectado al puerto ${config.PORT}`)
+
+//**********Puerto**********/
+const PORT = yargs.default({port:8080}).argv
+httpServer.listen(PORT.port, ()=>{
+    console.log(`Servidor conectado al puerto ${PORT.port}`)
 })
 httpServer.on("error",error=>console.log(`Se produjo error de servidor ${error}`))
 
